@@ -1,10 +1,16 @@
-FROM centos:7
+FROM centos:6
 
-###GET LATEST EPEL-RELEASE###
-RUN yum install epel-release -y
+WORKDIR /tmp
 
-###INSTALL WGET###
-RUN yum install wget -y
+###INSTALL WGET AND GET LATEST EPEL-RELEASE###
+RUN yum -y install epel-release wget && \
+    wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm && \
+    wget https://centos6.iuscommunity.org/ius-release.rpm && \
+    rpm -Uvh ius-release*.rpm && \
+    yum -y update
+
+###INSTALL ANSIBLE###
+RUN yum -y install ansible
 
 ###INSTALL JET###
 RUN curl -SLO "https://s3.amazonaws.com/codeship-jet-releases/1.19.3/jet-linux_amd64_1.19.3.tar.gz"
@@ -16,27 +22,31 @@ RUN wget http://stedolan.github.io/jq/download/linux64/jq
 RUN chmod +x ./jq
 RUN cp jq /usr/bin
 
+###INSTALL GIT###
+RUN yum -y install git
+
+###INSTALL PHP###
+RUN yum -y install php56u php56u-gd php56u-mcrypt php56u-mbstring php56u-mysql php56u-opcache php56u-fpm php56u-mbstring php56u-pdo php56u-memcache php56u-memcached php56u-xml
+
+###INSTALL COMPOSER###
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
+
+###INSTALL XMLPARSER###
+RUN pear install XML_Parser
+
+###INSTALL UNZIP###
+RUN yum -y install unzip
+
+###INSTALL AWSCLI###
+RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" && \
+    unzip awscli-bundle.zip && \
+    ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+
+RUN echo -e "date.timezone=\"Asia/Singapore\"" > /etc/php.d/timezone.ini
+RUN yum -y install gcc-c++ make
+RUN curl -sL https://rpm.nodesource.com/setup_9.x | bash -
+
 ###INSTALL MYSQL###
 RUN wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
 RUN rpm -Uvh mysql-community-release-el6-5.noarch.rpm
 RUN yum -y install mysql mysql-server
-
-###INSTALL GIT###
-RUN yum remove git -y
-RUN yum install http://opensource.wandisco.com/centos/6/git/x86_64/wandisco-git-release-6-1.noarch.rpm -y
-RUN yum install git -y
-
-###INSTALL PIP###
-RUN yum install -y python-setuptools
-RUN easy_install pip
-
-###INSTALL AWSCLI###
-RUN pip install awscli
-
-###INSTALL ANSIBLE###
-RUN pip install ansible
-
-###INSTALL PHP v5.6.7###
-RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-RUN rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
-RUN yum install -y php56w php56w-opcache php56w-fpm php56w-mbstring php56w-mysql php56w-pdo php56w-pecl-memcache php56w-xml php56w-pecl-memcached
