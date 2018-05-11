@@ -26,7 +26,7 @@ RUN cp jq /usr/bin
 RUN yum -y install git
 
 ###INSTALL PHP###
-RUN yum -y install php56u php56u-gd php56u-mcrypt php56u-mbstring php56u-mysql php56u-opcache php56u-fpm php56u-mbstring php56u-pdo php56u-memcache php56u-memcached php56u-xml
+RUN yum -y install php56u php56u-gd php56u-mcrypt php56u-mbstring php56u-mysql php56u-opcache php56u-fpm php56u-mbstring php56u-pdo php56u-memcache php56u-memcached php56u-xml php56u-redis
 
 ###INSTALL COMPOSER###
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
@@ -46,7 +46,10 @@ RUN echo -e "date.timezone=\"Asia/Singapore\"" > /etc/php.d/timezone.ini
 RUN yum -y install gcc-c++ make
 RUN curl -sL https://rpm.nodesource.com/setup_9.x | bash -
 
-###INSTALL MYSQL###
-RUN wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
-RUN rpm -Uvh mysql-community-release-el6-5.noarch.rpm
-RUN yum -y install mysql mysql-server
+###INSTALL MEMCACHED###
+RUN yum -y install memcached 
+RUN memcached -d -u root -m 512 -p root 127.0.0.1
+
+###INSTALL REDIS###
+RUN yum -y install redis
+RUN service redis start
